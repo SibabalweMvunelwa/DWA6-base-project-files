@@ -8,10 +8,8 @@ import { books, authors, genres, BOOKS_PER_PAGE } from './data.js'
 let page = 1;
 let matches = books
 
-const starting = document.createDocumentFragment()
-
-for (const { author, id, image, title } of matches.slice(0, BOOKS_PER_PAGE)) {
-    const element = document.createElement('button')
+let createPreview = (author, id, image, title) => {
+const element = document.createElement('button')
     element.classList = 'preview'
     element.setAttribute('data-preview', id)
 
@@ -27,7 +25,22 @@ for (const { author, id, image, title } of matches.slice(0, BOOKS_PER_PAGE)) {
         </div>
     `
 
-    starting.appendChild(element)
+    return element
+}
+
+let createOptions = (id, name) => {
+const element = document.createElement('option')
+    element.value = id
+    element.innerText = name
+    
+    return element
+}
+
+// Abstraction - createPreview for fragment
+const starting = document.createDocumentFragment()
+
+for (const { author, id, image, title } of matches.slice(0, BOOKS_PER_PAGE)) {
+    starting.appendChild(createPreview(author, id, image, title))
 }
 
 document.querySelector('[data-list-items]').appendChild(starting)
@@ -39,10 +52,7 @@ firstGenreElement.innerText = 'All Genres'
 genreHtml.appendChild(firstGenreElement)
 
 for (const [id, name] of Object.entries(genres)) {
-    const element = document.createElement('option')
-    element.value = id
-    element.innerText = name
-    genreHtml.appendChild(element)
+    genreHtml.appendChild(createOptions(id, name))
 }
 
 document.querySelector('[data-search-genres]').appendChild(genreHtml)
@@ -54,10 +64,7 @@ firstAuthorElement.innerText = 'All Authors'
 authorsHtml.appendChild(firstAuthorElement)
 
 for (const [id, name] of Object.entries(authors)) {
-    const element = document.createElement('option')
-    element.value = id
-    element.innerText = name
-    authorsHtml.appendChild(element)
+    authorsHtml.appendChild(createOptions(id, name))
 }
 
 document.querySelector('[data-search-authors]').appendChild(authorsHtml)
@@ -150,27 +157,12 @@ document.querySelector('[data-search-form]').addEventListener('submit', (event) 
         document.querySelector('[data-list-message]').classList.remove('list__message_show')
     }
 
+// Abstraction - createPreview for fragment
     document.querySelector('[data-list-items]').innerHTML = ''
     const newItems = document.createDocumentFragment()
 
     for (const { author, id, image, title } of result.slice(0, BOOKS_PER_PAGE)) {
-        const element = document.createElement('button')
-        element.classList = 'preview'
-        element.setAttribute('data-preview', id)
-    
-        element.innerHTML = `
-            <img
-                class="preview__image"
-                src="${image}"
-            />
-            
-            <div class="preview__info">
-                <h3 class="preview__title">${title}</h3>
-                <div class="preview__author">${authors[author]}</div>
-            </div>
-        `
-
-        newItems.appendChild(element)
+        newItems.appendChild(createPreview(author, id, image, title))
     }
 
     document.querySelector('[data-list-items]').appendChild(newItems)
@@ -186,27 +178,12 @@ document.querySelector('[data-search-form]').addEventListener('submit', (event) 
     document.querySelector('[data-search-form]').reset() //added this to clear any form input before next opened
 })
 
+// Abstraction - createPreview for fragment
 document.querySelector('[data-list-button]').addEventListener('click', () => {
     const fragment = document.createDocumentFragment()
 
     for (const { author, id, image, title } of matches.slice(page * BOOKS_PER_PAGE, (page + 1) * BOOKS_PER_PAGE)) {
-        const element = document.createElement('button')
-        element.classList = 'preview'
-        element.setAttribute('data-preview', id)
-    
-        element.innerHTML = `
-            <img
-                class="preview__image"
-                src="${image}"
-            />
-            
-            <div class="preview__info">
-                <h3 class="preview__title">${title}</h3>
-                <div class="preview__author">${authors[author]}</div>
-            </div>
-        `
-
-        fragment.appendChild(element)
+        fragment.appendChild(createPreview(author, id, image, title))
     }
 
     document.querySelector('[data-list-items]').appendChild(fragment)
